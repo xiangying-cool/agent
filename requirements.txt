@@ -1,0 +1,29 @@
+# 核心框架
+fastapi==0.104.1
+uvicorn==0.24.0
+python-multipart==0.0.6
+pydantic==2.5.2
+
+# 文档处理
+pymupdf==1.23.8
+python-docx==1.1.0
+
+# LangChain生态（兼容版本）
+langchain-core==0.1.52
+langchain==0.1.20
+langchain-community==0.0.38
+langchain-text-splitters==0.0.1
+
+# 向量数据库
+chromadb==0.4.22
+sentence-transformers==2.2.2
+huggingface-hub==0.17.3  # 兼容sentence-transformers 2.2.2
+transformers==4.30.0  # 兼容huggingface-hub 0.17.3
+
+# 大模型API
+openai==1.6.1
+qianfan==0.3.5
+
+# 工具库
+requests==2.31.0
+numpy==1.24.3

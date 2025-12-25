@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "timestamp": "2025-12-12T01:15:10.124951",
+    "query": "济南市家电补贴多少",
+    "answer": "补贴标准为...",
+    "rating": 5,
+    "comment": "很准确！",
+    "user_id": "anonymous",
+    "processed": false
+  },
+  {
+    "id": 2,
+    "timestamp": "2025-12-12T01:15:10.124951",
+    "query": "汽车以旧换新",
+    "answer": "汽车补贴为...",
+    "rating": 4,
+    "comment": "不错",
+    "user_id": "anonymous",
+    "processed": false
+  },
+  {
+    "id": 3,
+    "timestamp": "2025-12-12T01:15:10.124951",
+    "query": "电动车政策",
+    "answer": "电动自行车...",
+    "rating": 2,
+    "comment": "回答不完整",
+    "user_id": "anonymous",
+    "processed": false
+  },
+  {
+    "id": 4,
+    "timestamp": "2025-12-12T01:17:25.223068",
+    "query": "济南市家电补贴多少",
+    "answer": "补贴标准为...",
+    "rating": 5,
+    "comment": "很准确！",
+    "user_id": "anonymous",
+    "processed": false
+  },
+  {
+    "id": 5,
+    "timestamp": "2025-12-12T01:17:25.223582",
+    "query": "汽车以旧换新",
+    "answer": "汽车补贴为...",
+    "rating": 4,
+    "comment": "不错",
+    "user_id": "anonymous",
+    "processed": false
+  },
+  {
+    "id": 6,
+    "timestamp": "2025-12-12T01:17:25.224611",
+    "query": "电动车政策",
+    "answer": "电动自行车...",
+    "rating": 2,
+    "comment": "回答不完整",
+    "user_id": "anonymous",
+    "processed": false
+  },
+  {
+    "id": 7,
+    "timestamp": "2025-12-12T01:18:55.015768",
+    "query": "测试问题1",
+    "answer": "测试回答...",
+    "rating": 5,
+    "comment": "非常准确，帮助很大！",
+    "user_id": "anonymous",
+    "processed": false
+  },
+  {
+    "id": 8,
+    "timestamp": "2025-12-12T01:18:55.016314",
+    "query": "测试问题2",
+    "answer": "测试回答...",
+    "rating": 4,
+    "comment": "回答详细，但稍微有点慢",
+    "user_id": "anonymous",
+    "processed": false
+  },
+  {
+    "id": 9,
+    "timestamp": "2025-12-12T01:18:55.016930",
+    "query": "测试问题3",
+    "answer": "测试回答...",
+    "rating": 3,
+    "comment": "一般般",
+    "user_id": "anonymous",
+    "processed": false
+  }
+]

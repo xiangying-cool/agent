@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语音识别测试页面</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .status.ready {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status.listening {
+            background: #fff3cd;
+            color: #856404;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        button {
+            width: 100%;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px 0;
+        }
+        #startBtn {
+            background: #28a745;
+            color: white;
+        }
+        #startBtn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        #startBtn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        #stopBtn {
+            background: #dc3545;
+            color: white;
+        }
+        #stopBtn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        #result {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            min-height: 100px;
+            margin: 20px 0;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .log {
+            background: #212529;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .log-entry {
+            margin: 5px 0;
+        }
+        .mic-icon {
+            font-size: 48px;
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 语音识别测试工具</h1>
+        
+        <div id="status" class="status ready">
+            ✅ 系统就绪，点击下方按钮开始测试
+        </div>
+
+        <div class="mic-icon" id="micIcon">🎙️</div>
+
+        <button id="startBtn">🎤 开始录音</button>
+        <button id="stopBtn" style="display:none;">⏹️ 停止录音</button>
+
+        <div id="result">
+            <strong>识别结果：</strong><br>
+            <span id="transcript" style="color: #667eea; font-size: 20px;">等待语音输入...</span>
+        </div>
+
+        <div class="log" id="log">
+            <div class="log-entry">控制台日志：</div>
+        </div>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const micIcon = document.getElementById('micIcon');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const transcript = document.getElementById('transcript');
+        const logDiv = document.getElementById('log');
+
+        let recognition = null;
+
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(text, className) {
+            statusDiv.textContent = text;
+            statusDiv.className = 'status ' + className;
+        }
+
+        // 检查浏览器支持
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            updateStatus('❌ 您的浏览器不支持 Web Speech API，请使用 Chrome 或 Edge', 'error');
+            startBtn.disabled = true;
+            log('浏览器不支持 Web Speech API', 'error');
+        } else {
+            log('✅ 浏览器支持 Web Speech API');
+            
+            // 初始化语音识别
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;  // 单次识别模式
+            recognition.interimResults = true;  // 开启中间结果，实时显示
+            recognition.lang = 'zh-CN';  // 中文识别
+            recognition.maxAlternatives = 1;  // 只返回最佳结果
+            
+            log(`配置：continuous=false, interimResults=false, lang=zh-CN`);
+
+            recognition.onstart = () => {
+                log('✅ 语音识别已启动');
+                updateStatus('🎤 正在录音...请开始说话', 'listening');
+                micIcon.textContent = '🔴';
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'block';
+            };
+
+            recognition.onresult = (event) => {
+                log(`✅ 收到识别结果 (isFinal: ${event.results[0].isFinal})`);
+                
+                const result = event.results[0][0];
+                const text = result.transcript;
+                const confidence = (result.confidence * 100).toFixed(2);
+                const isFinal = event.results[0].isFinal;
+                
+                log(`识别文本: "${text}"`);
+                log(`置信度: ${confidence}%`);
+                log(`是否最终结果: ${isFinal}`);
+                
+                // 显示中间结果和最终结果
+                if (isFinal) {
+                    transcript.textContent = text;
+                    updateStatus(`✅ 识别成功！置信度: ${confidence}%`, 'ready');
+                } else {
+                    transcript.textContent = text + ' (识别中...)';
+                    updateStatus(`⏳ 正在识别...`, 'listening');
+                }
+            };
+
+            recognition.onerror = (event) => {
+                log(`❌ 错误: ${event.error}`, 'error');
+                updateStatus(`❌ 错误: ${event.error}`, 'error');
+                micIcon.textContent = '🎙️';
+                startBtn.style.display = 'block';
+                stopBtn.style.display = 'none';
+                
+                // 详细错误说明
+                const errorMessages = {
+                    'no-speech': '没有检测到语音，请重试',
+                    'audio-capture': '无法访问麦克风，请检查权限',
+                    'not-allowed': '麦克风权限被拒绝',
+                    'network': '网络错误',
+                    'aborted': '识别被中止'
+                };
+                
+                if (errorMessages[event.error]) {
+                    alert(errorMessages[event.error]);
+                }
+            };
+
+            recognition.onend = () => {
+                log('✅ 语音识别已结束');
+                micIcon.textContent = '🎙️';
+                startBtn.style.display = 'block';
+                stopBtn.style.display = 'none';
+                
+                if (statusDiv.className.includes('listening')) {
+                    updateStatus('⚠️ 录音结束，但未识别到文字', 'error');
+                }
+            };
+        }
+
+        startBtn.addEventListener('click', () => {
+            if (!recognition) return;
+            
+            log('🎤 用户点击开始录音');
+            try {
+                recognition.start();
+            } catch (e) {
+                log(`❌ 启动失败: ${e.message}`, 'error');
+                alert(`启动失败: ${e.message}`);
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
+            if (!recognition) return;
+            
+            log('⏹️ 用户点击停止录音');
+            try {
+                recognition.stop();
+            } catch (e) {
+                log(`❌ 停止失败: ${e.message}`, 'error');
+            }
+        });
+
+        log('页面加载完成，等待用户操作');
+    </script>
+</body>
+</html>
